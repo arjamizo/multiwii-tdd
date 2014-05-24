@@ -182,7 +182,10 @@ int main() {
 	for(int i=0; i<varss.size(); ++i) {
 		cout<<"executing ";
 		cout<<std::string(*varss[i])<<endl;
+		delete varss[i];
+		varss[i]=0;
 	}
+	vars.clear();
 
 	return 0;
 }
