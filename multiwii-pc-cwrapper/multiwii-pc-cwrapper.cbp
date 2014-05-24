@@ -38,6 +38,7 @@
 			<Add directory="./" />
 		</Compiler>
 		<Linker>
+			<Add option="-lpthread" />
 			<Add directory="./" />
 		</Linker>
 		<Unit filename="../Alarms.cpp" />

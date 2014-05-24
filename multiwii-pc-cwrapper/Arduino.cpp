@@ -156,12 +156,23 @@ void ev(STR str, T *(ref), const SIZE &num) {
 	//cout<<EvaluableExpressionArray<char[], uint16_t, int>(str, ref, num)<<endl;
 //}
 
+void *printEach5Seconds(void *cout_ptr) {
+	while(1) {
+		//std::ostream &cout=*(std::ostream*)cout_ptr;
+		vector<Serializable*> varss(vars.begin(), vars.end());
+		for(int i=0; i<varss.size(); ++i) {
+			cout<<"serializing ";
+			cout<<std::string(*varss[i])<<endl;
+		}
+		sleep(1);
+	}
+	return 0;
+}
 
 #include "../def.h"
 int main() {
 	long s=Timer::getMicros();
 	std::vector<int> a;a.size();
-	//setup();
 	//for(int i=0; i<10000000; ++i) printf("");
 //	cout<<"ELO "<<  (Timer::getMicros()-s);
 	//cout<<
@@ -177,15 +188,26 @@ int main() {
 	ev("pi_estimation", d);
 
 	d=3.14;
+	#define PTHREADS
+	#if defined(PTHREADS)
+    pthread_t tid;
 
-	vector<Serializable*> varss(vars.begin(), vars.end());
-	for(int i=0; i<varss.size(); ++i) {
-		cout<<"executing ";
-		cout<<std::string(*varss[i])<<endl;
-		delete varss[i];
-		varss[i]=0;
+	//setup();
+	::pthread_create(&tid, (const pthread_attr_t*)NULL, printEach5Seconds, (void *)cout);//requires -lpthread
+	#else
+		vector<Serializable*> varss(vars.begin(), vars.end());
+		for(int i=0; i<varss.size(); ++i) {
+			cout<<"executing ";
+			cout<<std::string(*varss[i])<<endl;
+			delete varss[i];
+			varss[i]=0;
+		}
+		vars.clear();
 	}
-	vars.clear();
-
+	#endif
+	while(1) {
+		usleep(1000);
+		d+=0.01;
+	}
 	return 0;
 }
