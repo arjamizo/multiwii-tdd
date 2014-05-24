@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <iostream>
+#include "../MultiWii.h"
 int min(int a, int b) {return a<b?a:b;}
 int max(int a, int b) {return a>b?a:b;}
 
@@ -79,9 +80,79 @@ typedef struct Timer
 ;
 
 using namespace std;
+extern void setup();
+extern void loop();
+#include <sstream>
+
+template <typename STR, typename T> //str template allows accepting both std::string and char[]
+class EvaluableExpression {
+	string variableName;
+	T &ref;
+	public:
+	EvaluableExpression(STR str, T &ref):ref(ref) {
+		variableName=str;
+	}
+	operator std::string() {
+		stringstream ss;
+		ss<<variableName<<" "<<ref;
+		return ss.str();
+	}
+};
+
+template <typename STR, typename T, typename SIZE> //str template allows accepting both std::string and char[]
+class EvaluableExpressionArray {
+	string variableName;
+	SIZE &size;
+	T &ref;
+	public:
+	EvaluableExpressionArray(STR str, T &ref, SIZE &size):size(size),ref(ref) {
+		variableName=str;
+	}
+	//TODO: allow accepting sixe (num parameter) as a pointer to empty-argument list, so expression like EvaluableArrayExpression("MOTORS", vectorOfMotors, vectorOfMotors.size) is acceptable
+	operator std::string() {
+		stringstream ss;
+		ss<<variableName;
+		for(int i=0; i<size; i++) ss<<" "<<ref[i];
+		return ss.str();
+	}
+};
+
+#include <vector>
+
+template <typename STR, typename T>
+void ev(STR str, T (&ref)) {
+	cout<<string(EvaluableExpression<STR, T>(str, ref))<<endl;
+	//cout<<str<<endl;
+}
+template <typename STR, typename T, typename SIZE>
+void ev(STR str, T (&ref), SIZE &num) {
+	cout<<string(EvaluableExpressionArray<STR, T, SIZE>(str, ref, num))<<endl;
+	//cout<<str<<endl;
+}
+template <typename STR, typename T, typename SIZE>
+void ev(STR str, T *(ref), const SIZE &num) {
+//	cout<<EvaluableExpressionArray<STR, T, SIZE>(str, ref, num)<<endl;
+	cout<<str<<endl;
+}
+
+//void evarray(char str[]) {
+	//cout<<EvaluableExpressionArray<char[], uint16_t, int>(str, ref, num)<<endl;
+//}
+
+
+#include "../def.h"
 int main() {
 	long s=Timer::getMicros();
+	std::vector<int> a;a.size();
+	//setup();
 	//for(int i=0; i<10000000; ++i) printf("");
-	cout<<"ELO "<<  (Timer::getMicros()-s);
+//	cout<<"ELO "<<  (Timer::getMicros()-s);
+	//cout<<
+	int motor[4];
+	vector<int> motorVec(4);
+	int si=4;
+	ev("motors", motorVec, si);
+	ev("motors", motor, si);
+	ev("NUMBER_MOTORS",  si);
 	return 0;
 }

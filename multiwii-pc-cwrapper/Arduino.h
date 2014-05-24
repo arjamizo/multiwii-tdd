@@ -35,7 +35,7 @@ extern int _led;
 
 #define OUTPUT 0
 
-#define pinMode(a,b)
+#define pinMode(a,b) //this is just a fake def  so there are no errors
 
 void delay(int ms);
 

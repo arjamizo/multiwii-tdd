@@ -15,6 +15,7 @@
 					<Add option="-g" />
 					<Add option="-I." />
 					<Add option="-DMOCK" />
+					<Add option="-DQUADX" />
 					<Add directory="./" />
 				</Compiler>
 			</Target>
