@@ -84,29 +84,42 @@ extern void setup();
 extern void loop();
 #include <sstream>
 
+class Serializable {
+	public:
+	virtual operator std::string()=0;
+};
+#include <set>
+#include <list>
+std::set<Serializable*> vars;
+
 template <typename STR, typename T> //str template allows accepting both std::string and char[]
-class EvaluableExpression {
+class EvaluableExpression : public Serializable {
 	string variableName;
 	T &ref;
 	public:
 	EvaluableExpression(STR str, T &ref):ref(ref) {
 		variableName=str;
+		vars.insert(this);
 	}
 	operator std::string() {
 		stringstream ss;
 		ss<<variableName<<" "<<ref;
 		return ss.str();
 	}
+	~EvaluableExpression() {
+		vars.erase(this);
+	}
 };
 
 template <typename STR, typename T, typename SIZE> //str template allows accepting both std::string and char[]
-class EvaluableExpressionArray {
+class EvaluableExpressionArray : public Serializable {
 	string variableName;
 	SIZE &size;
 	T &ref;
 	public:
 	EvaluableExpressionArray(STR str, T &ref, SIZE &size):size(size),ref(ref) {
 		variableName=str;
+		vars.insert(this);
 	}
 	//TODO: allow accepting sixe (num parameter) as a pointer to empty-argument list, so expression like EvaluableArrayExpression("MOTORS", vectorOfMotors, vectorOfMotors.size) is acceptable
 	operator std::string() {
@@ -115,18 +128,22 @@ class EvaluableExpressionArray {
 		for(int i=0; i<size; i++) ss<<" "<<ref[i];
 		return ss.str();
 	}
+
+	~EvaluableExpressionArray() {
+		vars.erase(this);
+	}
 };
 
 #include <vector>
 
 template <typename STR, typename T>
 void ev(STR str, T (&ref)) {
-	cout<<string(EvaluableExpression<STR, T>(str, ref))<<endl;
+	cout<<string(* new EvaluableExpression<STR, T>(str, ref))<<endl;
 	//cout<<str<<endl;
 }
 template <typename STR, typename T, typename SIZE>
 void ev(STR str, T (&ref), SIZE &num) {
-	cout<<string(EvaluableExpressionArray<STR, T, SIZE>(str, ref, num))<<endl;
+	cout<<string(* new EvaluableExpressionArray<STR, T, SIZE>(str, ref, num))<<endl;
 	//cout<<str<<endl;
 }
 template <typename STR, typename T, typename SIZE>
@@ -148,11 +165,24 @@ int main() {
 	//for(int i=0; i<10000000; ++i) printf("");
 //	cout<<"ELO "<<  (Timer::getMicros()-s);
 	//cout<<
-	int motor[4];
+	int motor[4]={1337,7331,3317,1733};
 	vector<int> motorVec(4);
 	int si=4;
+	double d=3.1f;
+
 	ev("motors", motorVec, si);
 	ev("motors", motor, si);
-	ev("NUMBER_MOTORS",  si);
+	ev("NUMBER_MOTORS", si);
+	ev("alt.estalt", alt.EstAlt);
+	ev("pi_estimation", d);
+
+	d=3.14;
+
+	vector<Serializable*> varss(vars.begin(), vars.end());
+	for(int i=0; i<varss.size(); ++i) {
+		cout<<"executing ";
+		cout<<std::string(*varss[i])<<endl;
+	}
+
 	return 0;
 }
