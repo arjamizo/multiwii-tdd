@@ -1,0 +1,3 @@
+[submodule "multiwii-firmware"]
+	path = multiwii-firmware
+	url = https://github.com/multiwii/multiwii-firmware.git
