@@ -1,8 +1,20 @@
 #include <stdint.h>
 #include <iostream>
-#include "../MultiWii.h"
+#include "MultiWii.h"
 int min(int a, int b) {return a<b?a:b;}
 int max(int a, int b) {return a>b?a:b;}
+
+#ifdef _WIN32
+void sleep(int millis) {
+    for(int i=0; i<3e8; ++i);
+}
+
+typedef int pthread_t;
+typedef const int pthread_attr_t;
+void* pthread_create(int*, pthread_attr_t*, void* (*f)(void*), void*p) {
+    return f(p);
+}
+#endif // _WIN32
 
 int _led;
 uint8_t PWM_PIN[8];
@@ -157,19 +169,20 @@ void ev(STR str, T *(ref), const SIZE &num) {
 //}
 
 void *printEach5Seconds(void *cout_ptr) {
-	while(1) {
+	do {
 		//std::ostream &cout=*(std::ostream*)cout_ptr;
+		cout<<"vars.size"<<vars.size()<<endl;
 		vector<Serializable*> varss(vars.begin(), vars.end());
 		for(int i=0; i<varss.size(); ++i) {
 			cout<<"serializing ";
 			cout<<std::string(*varss[i])<<endl;
 		}
 		sleep(1);
-	}
+	} while(0);
 	return 0;
 }
 
-#include "../def.h"
+#include "def.h"
 int main() {
 	long s=Timer::getMicros();
 	std::vector<int> a;a.size();
@@ -188,26 +201,27 @@ int main() {
 	ev("pi_estimation", d);
 
 	d=3.14;
-	#define PTHREADS
 	#if defined(PTHREADS)
     pthread_t tid;
 
 	//setup();
 	::pthread_create(&tid, (const pthread_attr_t*)NULL, printEach5Seconds, (void *)cout);//requires -lpthread
 	#else
-		vector<Serializable*> varss(vars.begin(), vars.end());
-		for(int i=0; i<varss.size(); ++i) {
-			cout<<"executing ";
-			cout<<std::string(*varss[i])<<endl;
-			delete varss[i];
-			varss[i]=0;
-		}
-		vars.clear();
-	}
+
 	#endif
 	while(1) {
 		usleep(1000);
 		d+=0.01;
+		#if _WIN32
+		printEach5Seconds((void*)&cout);
+		#endif // _WIN32
 	}
+
+    vector<Serializable*> varss(vars.begin(), vars.end());
+    for(int i=0; i<varss.size(); ++i) {
+        delete varss[i];
+        varss[i]=0;
+    }
+    vars.clear();
 	return 0;
 }
