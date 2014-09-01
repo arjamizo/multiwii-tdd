@@ -1,0 +1,137 @@
+From 17ff13b3b1e9eb43fcf0f942f3cd61f146e55ffe Mon Sep 17 00:00:00 2001
+From: Artur Z <arjamizo@gmail.com>
+Date: Sat, 24 May 2014 12:35:27 +0200
+Subject: [PATCH] fixed all compilation errors
+
+---
+ EEPROM.cpp   |  2 +-
+ IMU.cpp      | 11 +++++++++++
+ MultiWii.cpp | 12 ++++++++----
+ Sensors.h    |  1 +
+ config.h     |  4 ++--
+ types.h      |  2 ++
+ 6 files changed, 25 insertions(+), 7 deletions(-)
+
+diff --git a/EEPROM.cpp b/EEPROM.cpp
+index e0aea71..d46e046 100644
+--- a/EEPROM.cpp
++++ b/EEPROM.cpp
+@@ -1,7 +1,7 @@
+ #include <avr/eeprom.h>
+ #include "Arduino.h"
+ #include "config.h"
+-#include "def.h"
++//#include "def.h"
+ #include "types.h"
+ #include "EEPROM.h"
+ #include "MultiWii.h"
+diff --git a/IMU.cpp b/IMU.cpp
+index 1a758ca..dee8f7b 100644
+--- a/IMU.cpp
++++ b/IMU.cpp
+@@ -1,4 +1,7 @@
+ #include "Arduino.h"
++#define _USE_MATH_DEFINES
++#include <cmath>
++using namespace std;
+ #include "config.h"
+ #include "def.h"
+ #include "types.h"
+@@ -160,6 +163,7 @@ float InvSqrt (float x){
+   return 0.5f * (conv.f * (3.0f - x * conv.f * conv.f));
+ }
+ 
++#ifndef MOCK
+ // signed16 * signed16
+ // 22 cycles
+ // http://mekonik.wordpress.com/2009/03/18/arduino-avr-gcc-multiplication/
+@@ -189,6 +193,13 @@ asm volatile ( \
+ : \
+ "r26" \
+ )
++#else
++void MultiS16X16to32(int32_t &r, int16_t &a, int16_t &b) {
++long aa=a;
++aa*=b;
++r=aa;
++}
++#endif // MOCK
+ 
+ int32_t  __attribute__ ((noinline)) mul(int16_t a, int16_t b) {
+   int32_t r;
+diff --git a/MultiWii.cpp b/MultiWii.cpp
+index 3ecc03c..d3dcbac 100644
+--- a/MultiWii.cpp
++++ b/MultiWii.cpp
+@@ -7,9 +7,9 @@ November  2013     V2.3
+  the Free Software Foundation, either version 3 of the License, or
+  any later version. see <http://www.gnu.org/licenses/>
+ */
+-
++#ifndef MOCK
+ #include <avr/io.h>
+-
++#endif
+ #include "Arduino.h"
+ #include "config.h"
+ #include "def.h"
+@@ -25,9 +25,13 @@ November  2013     V2.3
+ #include "Serial.h"
+ #include "GPS.h"
+ #include "Protocol.h"
+-
++#ifndef MOCK
+ #include <avr/pgmspace.h>
+-
++#endif
++#ifdef MOCK
++#include <cmath>
++using namespace std;
++#endif // MOCK
+ /*********** RC alias *****************/
+ 
+ const char pidnames[] PROGMEM =
+diff --git a/Sensors.h b/Sensors.h
+index 9665504..3e29edb 100644
+--- a/Sensors.h
++++ b/Sensors.h
+@@ -1,3 +1,4 @@
++#define PI M_PI
+ #ifndef SENSORS_H_
+ #define SENSORS_H_
+ 
+diff --git a/config.h b/config.h
+index f50da2c..703e71b 100644
+--- a/config.h
++++ b/config.h
+@@ -36,7 +36,7 @@
+     //#define BI
+     //#define TRI
+     //#define QUADP
+-    //#define QUADX
++    #define QUADX
+     //#define Y4
+     //#define Y6
+     //#define HEX6
+@@ -139,7 +139,7 @@
+       //#define Bobs_9DOF_V1     // BobsQuads 9DOF V1 with ITG3200, BMA180 & HMC5883L
+       //#define Bobs_10DOF_BMP_V1 // BobsQuads 10DOF V1 with ITG3200, BMA180, HMC5883L & BMP180 - BMP180 is software compatible with BMP085
+       //#define FLYDUINO_MPU       // MPU6050 Break Out onboard 3.3V reg
+-      //#define CRIUS_AIO_PRO_V1
++      #define CRIUS_AIO_PRO_V1
+       //#define DESQUARED6DOFV2GO  // DEsquared V2 with ITG3200 only
+       //#define DESQUARED6DOFV4    // DEsquared V4 with MPU6050
+       //#define LADYBIRD
+diff --git a/types.h b/types.h
+index 5f13c83..ee0a61d 100644
+--- a/types.h
++++ b/types.h
+@@ -1,3 +1,5 @@
++#include <stdint.h>
++#include <Arduino.h>
+ #ifndef TYPES_H_
+ #define TYPES_H_
+ 
+-- 
+1.9.4.msysgit.1
+

@@ -2,3 +2,4 @@
 	path = multiwii-firmware
 	url = https://github.com/multiwii/multiwii-firmware.git
 	commitid = 2afb86
+	update = "!(cd multiwii-firmware; git apply --ignore-whitespace ../0001*)"
