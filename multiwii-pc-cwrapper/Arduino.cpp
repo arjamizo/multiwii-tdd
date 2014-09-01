@@ -1,24 +1,30 @@
 #include <stdint.h>
 #include <iostream>
+#include <pthread.h>
 #include "MultiWii.h"
 int min(int a, int b) {return a<b?a:b;}
 int max(int a, int b) {return a>b?a:b;}
 
+#include <unistd.h>
+
 #ifdef _WIN32
 void sleep(int millis) {
-    for(int i=0; i<3e8; ++i);
+    for(int i=0; i<millis*1000; ++i)
+        usleep((useconds_t)(1e3));
 }
+#endif // _WIN32
 
+#if not defined (PTHREADS)
 typedef int pthread_t;
 typedef const int pthread_attr_t;
 void* pthread_create(int*, pthread_attr_t*, void* (*f)(void*), void*p) {
     return f(p);
 }
-#endif // _WIN32
+#endif // PTHRAEDS
 
 int _led;
 uint8_t PWM_PIN[8];
-#include <unistd.h>
+
 void delay(int ms) {
     usleep(ms*1000);
 }
@@ -169,6 +175,11 @@ void ev(STR str, T *(ref), const SIZE &num) {
 //}
 
 void *printEach5Seconds(void *cout_ptr) {
+    #if not defined (PTHREADS)
+    int repeat=0;
+	#else
+    int repeat=1;
+	#endif
 	do {
 		//std::ostream &cout=*(std::ostream*)cout_ptr;
 		cout<<"vars.size"<<vars.size()<<endl;
@@ -178,7 +189,7 @@ void *printEach5Seconds(void *cout_ptr) {
 			cout<<std::string(*varss[i])<<endl;
 		}
 		sleep(1);
-	} while(0);
+	} while(repeat);
 	return 0;
 }
 
@@ -201,18 +212,19 @@ int main() {
 	ev("pi_estimation", d);
 
 	d=3.14;
-	#if defined(PTHREADS)
+	#if !defined(PTHREADS)
+	#else
     pthread_t tid;
 
 	//setup();
+	cout<<"Running..."<<endl;
 	::pthread_create(&tid, (const pthread_attr_t*)NULL, printEach5Seconds, (void *)cout);//requires -lpthread
-	#else
-
 	#endif
 	while(1) {
 		usleep(1000);
 		d+=0.01;
-		#if _WIN32
+		#if not defined(PTHREADS)
+		1/0;
 		printEach5Seconds((void*)&cout);
 		#endif // _WIN32
 	}
