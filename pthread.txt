@@ -1,0 +1,15 @@
+open ftp.linux.ee
+anonymous
+anonymous
+binary
+PASV
+cd /pub/gnu/sourceware/pthreads-win32/prebuilt-dll-2-8-0-release/lib/
+ls
+get pthreadVC2.lib pthread.lib
+!bash -c "grep .lib .gitignore || echo '*.lib' >> .gitignore"
+get pthreadVC2.dll ../pthreadVC2.dll
+cd ../include
+get pthread.h
+get sched.h
+get semaphore.h
+quit

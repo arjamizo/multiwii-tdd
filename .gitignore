@@ -1,0 +1,10 @@
+obj/
+bin/
+*.cbp
+*.save
+*.layout
+*.depend
+multiwii-firmware/
+/tmp
+*.dll
+*.lib
