@@ -41,6 +41,8 @@
 				<ExtraCommands>
 					<Add before='cmd /c echo cmd /c &quot;cd .. &amp;&amp; dir pthread.bat &amp;&amp; pthread.bat&quot; echo this fails due to some windows problems...' />
 					<Add before='cmd /c &quot;explorer ..\pthread.bat &amp; dir ..\tmp\pthread.h&quot;' />
+					<Add before="cmd /c echo" />
+					<Add before='cmd /c &quot;explorer ..\makeheaders.bat &amp; dir include\*.hpp&quot;' />
 				</ExtraCommands>
 			</Target>
 		</Build>
@@ -54,6 +56,8 @@
 			<Add directory="../multiwii-firmware" />
 			<Add directory="../" />
 			<Add directory="../tmp" />
+			<Add directory="src" />
+			<Add directory="include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lpthread" />
