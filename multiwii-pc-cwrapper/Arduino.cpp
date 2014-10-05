@@ -178,7 +178,12 @@ void *printEach5Seconds(void *cout_ptr) {
 			cout<<std::string(*varss[i])<<endl;
 		}
 		sleep(1);
-	} while(0);
+	}
+    #ifdef PTHREAD
+    while(1);
+    #else
+    while(0);
+    #endif
 	return 0;
 }
 
@@ -201,11 +206,11 @@ int main() {
 	ev("pi_estimation", d);
 
 	d=3.14;
-	#if defined(PTHREADS)
+	#if defined(PTHREAD)
     pthread_t tid;
 
 	//setup();
-	::pthread_create(&tid, (const pthread_attr_t*)NULL, printEach5Seconds, (void *)cout);//requires -lpthread
+	::pthread_create(&tid, (const pthread_attr_t*)NULL, printEach5Seconds, (void *)cout);
 	#else
 
 	#endif

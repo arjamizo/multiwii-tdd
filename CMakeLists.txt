@@ -9,7 +9,8 @@ message( "Remember to replace: in IMU.cpp:
   //MultiS16X16to32(r, a, b);
   r = (int32_t)a*b; //without asm requirement"
 )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNUMBER_MOTOR=4 -DMOCK -DQUADX -O2 -s -lpthread -DCRIUS_AIO_PRO_V1 -DMPU6050 -DPI=3.14159265 -DRC_CHANS=8") #-Wall
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNUMBER_MOTOR=4 -DMOCK -DQUADX -O2 -s -DCRIUS_AIO_PRO_V1 -DMPU6050 -DPI=3.14159265 -DRC_CHANS=8 -DPTHREAD") #-Wall
+
 
 set(SOURCE_FILES
     multiwii-firmware/Alarms.cpp
@@ -50,3 +51,6 @@ include_directories(multiwii-pc-cwrapper)
 include_directories(multiwii-pc-cwrapper/avr)
 
 add_executable(multiwii_tdd ${SOURCE_FILES})
+
+find_package (Threads)
+target_link_libraries (multiwii_tdd ${CMAKE_THREAD_LIBS_INIT})
