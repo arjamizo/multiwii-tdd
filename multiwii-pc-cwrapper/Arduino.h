@@ -92,3 +92,5 @@ int max(int a, int b);
 long millis();
 
 long micros();
+
+void *printEach5Seconds(void *cout_ptr);

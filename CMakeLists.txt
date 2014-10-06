@@ -1,15 +1,18 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(multiwii_tdd)
 
-message( "Remember to replace: in IMU.cpp:
+message( "Remember to
+1. replace: in IMU.cpp:
   MultiS16X16to32(r, a, b);
   //r = (int32_t)a*b; without asm requirement
   to
 
   //MultiS16X16to32(r, a, b);
   r = (int32_t)a*b; //without asm requirement"
+
+2. add #include "stdint.h" to multiwii: types.h
 )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNUMBER_MOTOR=4 -DMOCK -DQUADX -O2 -s -DCRIUS_AIO_PRO_V1 -DMPU6050 -DPI=3.14159265 -DRC_CHANS=8 -DPTHREAD") #-Wall
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNUMBER_MOTOR=4 -DMOCK -DQUADX -O2 -s -DCRIUS_AIO_PRO_V1 -DPI=3.14159265 -DRC_CHANS=8 -DPTHREAD -w") #-Wall
 
 
 set(SOURCE_FILES
@@ -43,12 +46,16 @@ set(SOURCE_FILES
     multiwii-pc-cwrapper/Arduino.cpp
     multiwii-pc-cwrapper/Arduino.h
     multiwii-pc-cwrapper/main.cpp
-    multiwii-pc-cwrapper/main.h)
+    multiwii-pc-cwrapper/main.h
+    multiwii-pc-cwrapper/observable/Timer.h
+    multiwii-pc-cwrapper/observable/Observable.cpp
+)
 
 include_directories(.)
 include_directories(multiwii-firmware)
 include_directories(multiwii-pc-cwrapper)
 include_directories(multiwii-pc-cwrapper/avr)
+include_directories(multiwii-pc-cwrapper/observable)
 
 add_executable(multiwii_tdd ${SOURCE_FILES})
 
